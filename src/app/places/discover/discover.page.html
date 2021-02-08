@@ -11,26 +11,35 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-segment value="all" (ionChange)="onFilterUpdate($event)">
+  <!-- <ion-segment value="all" (ionChange)="onFilterUpdate($event)"> -->
+    <!-- 1:above is buggy case and below is corrected case -->
+  <ion-segment value="all" (ionChange)="onFilterUpdate($event.detail.value)">  
     <ion-segment-button value="all">All Places</ion-segment-button>
     <ion-segment-button value="bookable">Bookable Places</ion-segment-button>
   </ion-segment>
-  <ion-grid>
+  <ion-grid *ngIf="!relevantPlaces || relevantPlaces.length<=0">
+    <ion-row>
+      <ion-col class="ion-text-center" size="12" size-sm="8" offset-sm="2">
+        <p>There are no bookable places right now. Please come back later.</p>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-grid *ngIf="relevantPlaces.length>0">
     <ion-row>
       <ion-col class="ion-text-center" size="12" size-sm="8" offset-sm="2">
         <ion-card>
           <ion-card-header>
-            <ion-card-title>{{loadedPlaces[0].title}}</ion-card-title>
-            <ion-card-subtitle>{{loadedPlaces[0].price | currency}} Per Night</ion-card-subtitle>
+            <ion-card-title>{{relevantPlaces[0].title}}</ion-card-title>
+            <ion-card-subtitle>{{relevantPlaces[0].price | currency}} Per Night</ion-card-subtitle>
           </ion-card-header>
-          <ion-img [src]="loadedPlaces[0].imageUrl"></ion-img>
+          <ion-img [src]="relevantPlaces[0].imageUrl"></ion-img>
           <ion-card-content>
             <!-- <p>{{loadedPlaces[0].description}}</p> -->
             <!-- <p><ion-label color="secondary">{{loadedPlaces[0].description}}</ion-label></p> -->
-            <p><ion-text color="secondary">{{loadedPlaces[0].description}}</ion-text></p>
+            <p><ion-text color="secondary">{{relevantPlaces[0].description}}</ion-text></p>
           </ion-card-content>
           <div>
-            <ion-button routerDirection="forward" [routerLink]="['/','places','tabs','discover',loadedPlaces[0].id]" fill="clear" color="primary">
+            <ion-button routerDirection="forward" [routerLink]="['/','places','tabs','discover',relevantPlaces[0].id]" fill="clear" color="primary">
               More
             </ion-button>
           </div>
@@ -41,7 +50,7 @@
     <ion-row>
       <ion-col class="ion-text-center" size="12" size-sm="8" offset-sm="2">
         <ion-list>
-          <ion-item *ngFor="let place of loadedPlaces.slice(1)" 
+          <ion-item *ngFor="let place of relevantPlaces.slice(1)" 
                     [routerLink]="['/','places','tabs','discover',place.id]"
                     detail
           >

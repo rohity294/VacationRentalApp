@@ -15,10 +15,12 @@
       <ion-text color="primary">{{getDummyDate() | date}}</ion-text> -->
 
       <ion-icon name="calendar" class="space-left" color="primary"></ion-icon>
-      <ion-text color="secondary">{{getDummyDate() | date}}</ion-text>
+      <!-- <ion-text color="secondary">{{getDummyDate() | date}}</ion-text> -->
+      <ion-text color="secondary">{{offer.availableFrom|date}}</ion-text>
       <span class="space-left"> to </span><br/>
       <ion-icon name="calendar" class="space-left" color="primary"></ion-icon>
-      <ion-text color="secondary">{{getDummyDate() | date}}</ion-text>
+      <!-- <ion-text color="secondary">{{getDummyDate() | date}}</ion-text> -->
+      <ion-text color="secondary">{{offer.availableTo|date}}</ion-text>
     </div>
   </ion-label>
 </ion-item>

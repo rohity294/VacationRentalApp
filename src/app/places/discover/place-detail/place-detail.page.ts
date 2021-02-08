@@ -1,7 +1,15 @@
+import { AuthService } from './../../../auth/auth.service';
+import { BookingService } from './../../../bookings/booking.service';
+import { Subscription } from 'rxjs';
 import { CreateBookingComponent } from './../../../bookings/create-booking/create-booking.component';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ActionSheetController, ModalController, NavController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  LoadingController
+} from '@ionic/angular';
 import { Place } from './../../place.model';
 import { PlacesService } from './../../places.service';
 
@@ -10,29 +18,40 @@ import { PlacesService } from './../../places.service';
   templateUrl: './place-detail.page.html',
   styleUrls: ['./place-detail.page.scss'],
 })
-export class PlaceDetailPage implements OnInit {
-  place:Place;
+export class PlaceDetailPage implements OnInit, OnDestroy {
+  place: Place;
+  isBookable=false;
+  private placeSub: Subscription;
 
   constructor(
-    private router:Router,
-    private navController:NavController,
-    private activatedRoute:ActivatedRoute,
-    private placesService:PlacesService,
-    private modalController:ModalController,
-    private actionSheetController:ActionSheetController
-    ){}
+    private router: Router,
+    private navController: NavController,
+    private activatedRoute: ActivatedRoute,
+    private placesService: PlacesService,
+    private modalController: ModalController,
+    private actionSheetController: ActionSheetController,
+    private bookingService: BookingService,
+    private loadingController: LoadingController,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(paramMap=>{
-      if(!paramMap.has('placeId')){
+    this.activatedRoute.paramMap.subscribe((paramMap) => {
+      if (!paramMap.has('placeId')) {
         this.navController.navigateBack('/places/tabs/discover');
         return;
       }
-      this.place = this.placesService.getPlace(paramMap.get('placeId'));
+      // this.place = this.placesService.getPlace(paramMap.get('placeId'));
+      this.placeSub = this.placesService
+        .getPlace(paramMap.get('placeId'))
+        .subscribe((zplace) => {
+          this.place = zplace;
+          this.isBookable = zplace.userId!==this.authService.userId;
+        });
     });
   }
 
-  onBookPlace(){
+  onBookPlace() {
     //this.router.navigateByUrl('/places/tabs/discover');
     //or below
     //this.router.navigate(['/','places','tabs','discover']);
@@ -58,53 +77,76 @@ export class PlaceDetailPage implements OnInit {
     //   }
     // });
 
-    this.actionSheetController.create({
-      header:'Choose an action',
-      buttons:[
-        {
-          text:'Select Date',
-          handler:()=>{
-            this.openBookingModal('select');
-          }
-        },
-        {
-          text:'Random Date',
-          handler:()=>{
-            this.openBookingModal('random');
-          }
-        },
-        {
-          text:'Cancel',
-          role:'destructive'//makes button color red
-          //role:'cancel'
-        }
-      ]
-    })
-    .then((actionSheetElement)=>{
-      actionSheetElement.present();
-    });
+    this.actionSheetController
+      .create({
+        header: 'Choose an action',
+        buttons: [
+          {
+            text: 'Select Date',
+            handler: () => {
+              this.openBookingModal('select');
+            },
+          },
+          {
+            text: 'Random Date',
+            handler: () => {
+              this.openBookingModal('random');
+            },
+          },
+          {
+            text: 'Cancel',
+            role: 'destructive', //makes button color red
+            //role:'cancel'
+          },
+        ],
+      })
+      .then((actionSheetElement) => {
+        actionSheetElement.present();
+      });
   }
 
-  openBookingModal(mode:'select'|'random'){
+  openBookingModal(mode: 'select' | 'random') {
     console.log(mode);
-    this.modalController.create({
-      component: CreateBookingComponent,
-      componentProps: {selectedPlace: this.place, selectedMode: mode},
-      id: "modal1"
-    })
-    .then(modalElement=>{
-      modalElement.present();
-      return modalElement.onDidDismiss();
-    })
-    .then(resultData=>{
-      console.log(resultData.data,resultData.role);
-      if(resultData.role==="confirm"){
-        console.log("Your booking is confirmed");
-      }
-    });
+    this.modalController
+      .create({
+        component: CreateBookingComponent,
+        componentProps: { selectedPlace: this.place, selectedMode: mode },
+        id: 'modal1',
+      })
+      .then((modalElement) => {
+        modalElement.present();
+        return modalElement.onDidDismiss();
+      })
+      .then((resultData) => {
+        console.log(resultData.data, resultData.role);
+        if (resultData.role === 'confirm') {
+          //console.log("Your booking is confirmed");
+          this.loadingController
+            .create({ message: 'Booking place...' })
+            .then((loadingElement) => {
+              loadingElement.present();
+              this.bookingService
+                .addBooking(
+                  this.place.id,
+                  this.place.title,
+                  this.place.imageUrl,
+                  resultData.data.bookingData.firstName,
+                  resultData.data.bookingData.lastName,
+                  resultData.data.bookingData.guestNumber,
+                  resultData.data.bookingData.startDate,
+                  resultData.data.bookingData.endDate
+                )
+                .subscribe(() => {
+                  loadingElement.dismiss();
+                });
+            });
+        }
+      });
   }
 
+  ngOnDestroy() {
+    if (this.placeSub) {
+      this.placeSub.unsubscribe;
+    }
+  }
 }
-
-
-
