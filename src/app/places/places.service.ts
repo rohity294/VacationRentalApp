@@ -80,7 +80,41 @@ export class PlacesService {
 
     return this.http
       .get<{ [key: string]: PlaceData }>(
-        'https://ionic-angular-course-68762-default-rtdb.firebaseio.com/offered-places.json'
+       // `https://ionic-angular-course-68762-default-rtdb.firebaseio.com/offered-places.json?`
+       `https://ionic-angular-course-68762-default-rtdb.firebaseio.com/offered-places.json?orderBy="userId"&equalTo="${this.authService.userId}"`
+      )
+      .pipe(
+        map((responseData) => {
+          const places = [];
+          for (const key in responseData) {
+            if (responseData.hasOwnProperty(key)) {
+              places.push(
+                new Place(
+                  key,
+                  responseData[key].title,
+                  responseData[key].description,
+                  responseData[key].imageUrl,
+                  responseData[key].price,
+                  new Date(responseData[key].availableFrom),
+                  new Date(responseData[key].availableTo),
+                  responseData[key].userId
+                )
+              );
+            }
+          }
+          return places;
+        }),
+        tap((places) => {
+          this._places.next(places);
+        })
+      );
+  }
+
+  fetchPlaces2() {
+    return this.http
+      .get<{ [key: string]: PlaceData }>(
+       `https://ionic-angular-course-68762-default-rtdb.firebaseio.com/offered-places.json`
+       //`https://ionic-angular-course-68762-default-rtdb.firebaseio.com/offered-places.json?orderBy="userId"&equalTo="${this.authService.userId}"`
       )
       .pipe(
         map((responseData) => {
