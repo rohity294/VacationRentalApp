@@ -34,10 +34,6 @@ const routes: Routes = [
           {
             path:'edit/:placeId',//:dynamicRoute should always be written after hardcoded routes like 'new' above
             loadChildren:()=>import('./offers/edit-offer/edit-offer.module').then(m=>m.EditOfferPageModule)
-          },
-          {
-            path:':placeId',
-            loadChildren:()=>import('./offers/offer-bookings/offer-bookings.module').then(m=>m.OfferBookingsPageModule)
           }
         ]
       },

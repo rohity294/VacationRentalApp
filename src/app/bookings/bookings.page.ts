@@ -11,6 +11,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 })
 export class BookingsPage implements OnInit, OnDestroy {
   loadedBookings: Booking[];
+  isLoading = false;
   private bookingSub: Subscription;
 
   constructor(
@@ -23,6 +24,13 @@ export class BookingsPage implements OnInit, OnDestroy {
     this.bookingSub = this.bookingService.bookings.subscribe((zbookings) => {
       this.loadedBookings = zbookings;
     });
+  }
+
+  ionViewWillEnter(){
+   this.isLoading = true;
+   this.bookingService.fetchBookings().subscribe(()=>{
+     this.isLoading = false;
+   });
   }
 
   onCancelBooking(bookingId: string, slidingItem: IonItemSliding) {

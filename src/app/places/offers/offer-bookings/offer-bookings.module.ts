@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { OfferBookingsPageRoutingModule } from './offer-bookings-routing.module';
-import { OfferBookingsPage } from './offer-bookings.page';
+
 
 @NgModule({
   imports: [
@@ -12,6 +12,6 @@ import { OfferBookingsPage } from './offer-bookings.page';
     IonicModule,
     OfferBookingsPageRoutingModule
   ],
-  declarations: [OfferBookingsPage]
+  declarations: []
 })
 export class OfferBookingsPageModule {}

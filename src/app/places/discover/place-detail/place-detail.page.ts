@@ -8,7 +8,8 @@ import {
   ActionSheetController,
   ModalController,
   NavController,
-  LoadingController
+  LoadingController,
+  AlertController,
 } from '@ionic/angular';
 import { Place } from './../../place.model';
 import { PlacesService } from './../../places.service';
@@ -20,7 +21,8 @@ import { PlacesService } from './../../places.service';
 })
 export class PlaceDetailPage implements OnInit, OnDestroy {
   place: Place;
-  isBookable=false;
+  isBookable = false;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -32,7 +34,8 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private actionSheetController: ActionSheetController,
     private bookingService: BookingService,
     private loadingController: LoadingController,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
@@ -42,12 +45,34 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return;
       }
       // this.place = this.placesService.getPlace(paramMap.get('placeId'));
+      this.isLoading = true;
       this.placeSub = this.placesService
         .getPlace(paramMap.get('placeId'))
-        .subscribe((zplace) => {
-          this.place = zplace;
-          this.isBookable = zplace.userId!==this.authService.userId;
-        });
+        .subscribe(
+          (zplace) => {
+            this.place = zplace;
+            this.isBookable = zplace.userId !== this.authService.userId;
+            this.isLoading = false;
+          },
+          (error) => {
+            this.alertController
+              .create({
+                header: 'An error occured!',
+                message: 'Could not load this place!',
+                buttons: [
+                  {
+                    text: 'OK',
+                    handler: () => {
+                      this.router.navigate(['/places/tabs/discover']);
+                    },
+                  }
+                ]
+              })
+              .then((alertElement) => {
+                alertElement.present();
+              });
+          }
+        );
     });
   }
 
