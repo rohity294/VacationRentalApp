@@ -6,11 +6,17 @@
       <!-- <ion-button (click)="onOpenMenu()">Menu</ion-button> -->
     </ion-buttons>
 
-    <ion-title>Discover Places</ion-title>
+    <!-- <ion-title>Discover Places</ion-title> -->
+    <ion-title>{{'app.title'|translate}}</ion-title>
+
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+  <ion-button color="primary" (click)="useLanguage('en')">English</ion-button>
+  <ion-button color="primary" (click)="useLanguage('de')">German</ion-button>
+  <ion-button color="primary" (click)="useLanguage('hi')">Hindi</ion-button>
+
   <!-- <ion-segment value="all" (ionChange)="onFilterUpdate($event)"> -->
     <!-- 1:above is buggy case and below is corrected case -->
   <ion-segment value="all" (ionChange)="onFilterUpdate($event.detail.value)">  
