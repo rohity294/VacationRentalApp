@@ -29,6 +29,13 @@
         </ion-menu-toggle>
 
         <ion-menu-toggle>
+          <ion-item lines="none" routerLink="/contact">
+            <ion-icon name="checkbox-outline" slot="start"></ion-icon>
+            <ion-label>Contact Admin</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle>
           <ion-item lines="none" (click)="onLogout()" button> 
             <!-- above button is needed only to add ripple animation effect on clicking the link, as by default ion-item is not a button -->
             <ion-icon name="exit" slot="start"></ion-icon>

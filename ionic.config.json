@@ -1,7 +1,8 @@
 {
   "name": "AirBNBApp",
   "integrations": {
-    "cordova": {}
+    "cordova": {},
+    "capacitor": {}
   },
   "type": "angular"
 }
